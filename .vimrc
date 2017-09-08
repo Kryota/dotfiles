@@ -14,10 +14,12 @@ set autoindent " 改行時に前の行のインデントを継続する
 set smartindent " 改行時に前の行の構文をチェックして次の行のインデントを増減させる
 set shiftwidth=4 " smartindentで増減する幅
 
+filetype on
+
 augroup fileTypeIndent
     autocmd!
-    autocmd BufNewFile, BufRead *.rb setlocal tabstop=2 softtabstop=2 shiftwidth=2
-    autocmd BufNewFile, BufRead *.erb setlocal tabstop=2 softtabstop=2 shiftwidth=2
+    autocmd BufNewFile,BufRead *.rb setlocal tabstop=2 softtabstop=2 shiftwidth=2
+    autocmd BufNewFile,BufRead *.erb setlocal tabstop=2 softtabstop=2 shiftwidth=2
 augroup END
 
 " 文字列検索
