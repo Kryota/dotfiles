@@ -63,7 +63,7 @@ if has('mouse')
 endif
 
 " クリップボード共有設定
-set clipboard=unnamed,autoselect
+set clipboard+=unnamed,autoselect
 
 " ペースト設定
 if &term =~ "xterm"
@@ -71,7 +71,7 @@ if &term =~ "xterm"
     let &t_EI .= "\e[?2004l"
     let &pastetoggle = "\e[201~"
 
-    function XTermPasteBegin(ret)
+    function! XTermPasteBegin(ret)
         set paste
         return a:ret
     endfunction
