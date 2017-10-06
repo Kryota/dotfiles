@@ -16,6 +16,7 @@ set shiftwidth=4 " smartindentで増減する幅
 
 filetype on
 
+" 拡張子によってインデント幅を変える
 augroup fileTypeIndent
     autocmd!
     autocmd BufNewFile,BufRead *.rb setlocal tabstop=2 softtabstop=2 shiftwidth=2
@@ -35,6 +36,7 @@ nnoremap <silent><Esc><Esc> :<C-u>set nohlsearch!<CR> " esc2回押したらハ�
 set whichwrap=b,s,h,l,<,>,[,],~ " カーソルの左右移動で行末から次の行の行頭への移動が可能
 set number " 行番号を表示
 set cursorline " カーソルラインをハイライト
+autocmd ColorScheme * highlight LineNr ctermfg=239
 
 " 行が折り返し表示されていた場合、行単位ではなく表示単位でカーソル移動
 nnoremap j gj
@@ -104,8 +106,12 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 "----------------------------------------------------------
 " ここに追加したいVimプラグインを記述する・・・・・・②
 
-" カラースキームmolokai
+" カラースキーム
 NeoBundle 'tomasr/molokai'
+NeoBundle 'AlessandroYorba/Alduin'
+NeoBundle 'jpo/vim-railscasts-theme'
+NeoBundle 'MvanDiemen/ghostbuster'
+NeoBundle 'nanotech/jellybeans.vim'
 " ステータスラインの表示内容強化
 NeoBundle 'itchyny/lightline.vim'
 " 末尾の全角と半角の空白文字を赤くハイライト
@@ -135,6 +141,7 @@ NeoBundle 'scrooloose/syntastic'
 " プロジェクトに入ってるESLintを読み込む
 NeoBundle 'pmsorhaindo/syntastic-local-eslint.vim'
 
+"NeoBundle 'Shougo/unite.vim'
 "----------------------------------------------------------
 call neobundle#end()
 
@@ -147,13 +154,50 @@ NeoBundleCheck
 "----------------------------------------------------------
 " molokaiの設定
 "----------------------------------------------------------
-if neobundle#is_installed('molokai') " molokaiがインストールされていれば
-    colorscheme molokai " カラースキームにmolokaiを設定する
-endif
+"if neobundle#is_installed('molokai') " molokaiがインストールされていれば
+"    colorscheme molokai " カラースキームにmolokaiを設定する
+"endif
+"
+"set t_Co=256 " iTerm2など既に256色環境なら無くても良い
+"syntax enable " 構文に色を付ける
 
-set t_Co=256 " iTerm2など既に256色環境なら無くても良い
-syntax enable " 構文に色を付ける
+"----------------------------------------------------------
+" Alduinの設定
+"----------------------------------------------------------
 
+"colorscheme Alduin
+"if neobundle#is_installed('Alduin')
+"    colorscheme Alduin
+"endif
+"
+"set t_Co=256
+"syntax enable
+
+"----------------------------------------------------------
+" railscastsの設定
+"----------------------------------------------------------
+
+"if neobundle#is_installed('railscasts')
+"    colorscheme railscasts
+"endif
+
+"syntax enable
+
+"----------------------------------------------------------
+" ghostbusterの設定
+"----------------------------------------------------------
+
+"if neobundle#is_installed('ghostbuster')
+"    colorscheme ghostbuster
+"endif
+"
+"syntax enable
+
+"if neobundle#is_installed('jellybeans')
+    colorscheme jellybeans
+"endif
+
+syntax enable
 "----------------------------------------------------------
 "" ステータスラインの設定
 "----------------------------------------------------------
