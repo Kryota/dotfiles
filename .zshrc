@@ -1,4 +1,4 @@
-# If you come from bash you might have to change your $PATH.
+#If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
@@ -115,6 +115,13 @@ zstyle ':completion:*:manuals' separate-sections true
 # 名前で色を付けるようにする
 autoload colors
 colors
+
+PS1="%F{magenta}[${USER}@${HOST%%.*}%f %F{cyan}%1~%f%F{magenta}]%f%(!.#.$) "
+
+# aliasでmdviewコマンドでMarkdownファイルを見れるように
+function mdview(){
+    markdown $1 | nocorrect lynx -stdin
+}
 
 # LS_COLORSを設定しておく
 export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
