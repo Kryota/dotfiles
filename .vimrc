@@ -22,6 +22,7 @@ augroup fileTypeIndent
     autocmd BufNewFile,BufRead *.rb setlocal tabstop=2 softtabstop=2 shiftwidth=2
     autocmd BufNewFile,BufRead *.erb setlocal tabstop=2 softtabstop=2 shiftwidth=2
     autocmd BufNewFile,BufRead *.yml setlocal tabstop=2 softtabstop=2 shiftwidth=2
+    autocmd BufNewFile,BufRead *.scss setlocal tabstop=2 softtabstop=2 shiftwidth=2
 augroup END
 
 " 文字列検索
@@ -140,6 +141,8 @@ NeoBundle  'rking/ag.vim'
 NeoBundle 'scrooloose/syntastic'
 " プロジェクトに入ってるESLintを読み込む
 NeoBundle 'pmsorhaindo/syntastic-local-eslint.vim'
+" コメントアウト
+NeoBundle 'tomtom/tcomment_vim'
 
 "NeoBundle 'Shougo/unite.vim'
 "----------------------------------------------------------
@@ -193,10 +196,14 @@ NeoBundleCheck
 "
 "syntax enable
 
+"----------------------------------------------------------
+" ghostbusterの設定
+"----------------------------------------------------------
+
 "if neobundle#is_installed('jellybeans')
     colorscheme jellybeans
 "endif
-
+set t_Co=256
 syntax enable
 "----------------------------------------------------------
 "" ステータスラインの設定
@@ -280,6 +287,11 @@ let g:indent_guides_enable_on_vim_startup = 1
 "let g:indent_guides_exclude_filetypes = ['help', 'nerdtree']
 let g:indent_guides_guide_size = 1
 let g:indent_guides_start_level = 2
+
+"----------------------------------------------------------
+" tcommentの設定
+"----------------------------------------------------------
+
 
 autocmd BufNewFile *.py 0r $HOME/.vim/template/python_temp.txt
 autocmd BufNewFile *.html 0r $HOME/.vim/template/html_temp.txt
