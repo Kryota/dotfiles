@@ -1,90 +1,12 @@
-#If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:$PATH
 
-# Path to your oh-my-zsh installation.
-export ZSH=/Users/ryota/.oh-my-zsh
+# zplugが無いときはgit cloneしてくる
+if [[ ! -d ~/.zplug ]];then
+  git clone https://github.com/zplug/zplug ~/.zplug
+fi
 
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-zsh is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="alanpeabody"
+source ~/.zplug/init.zsh
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(brew cdd git)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-export PATH="/usr/local/bin:$PATH"
-export PATH=$HOME/.nodebrew/current/bin:$PATH
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# ssh
-# export SSH_KEY_PATH="~/.ssh/rsa_id"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
 
 # 文字コードの指定
 export LANG=ja_JP.UTF-8
@@ -92,9 +14,40 @@ export LANG=ja_JP.UTF-8
 # 日本語ファイル名を表示可能にする
 setopt print_eight_bit
 
+# 自動補完を有効にする
 autoload -U compinit
 compinit
-zstyle ':completion:*default' menu select=2
+
+# gitに関するエイリアス（gaなど）を追加する
+# oh-my-zshをサービスとしてそこからインストール
+# zplug "plugins/git", from:oh-my-zsh
+
+# zshのテーマ
+# zplug "yous/lime", as:theme
+
+# zsh のコマンドラインに色付けをするやつ
+# compinit 以降に読み込むようにロードの優先度を変更する（10~19にすれば良い）
+zplug "zsh-users/zsh-syntax-highlighting"
+
+# zsh のヒストリサーチを便利にするやつ
+zplug "zsh-users/zsh-history-substring-search"
+
+# Vim でいう Unite.vim にあたるような存在
+# zplug "mollifier/anyframe"
+
+# 簡単に git ルートへ cd するや
+# zplug "mollifier/cd-gitroot"
+
+# 移動系強化プラグイン
+zplug "b4b4r07/enhancd", use:enhancd.sh
+
+# インタラクティブフィルタ
+# fzf-bin にホスティングされているので注意
+# またファイル名が fzf-bin となっているので file:fzf としてリネームする
+zplug "junegunn/fzf-bin", as:command, from:gh-r, rename-to:fzf
+
+# tmux 用の拡張
+zplug "junegunn/fzf", as:command, use:bin/fzf-tmux
 
 # 補完関数の表示を強化する
 zstyle ':completion:*' verbose yes
@@ -118,18 +71,63 @@ colors
 
 PS1="%F{magenta}[${USER}@${HOST%%.*}%f %F{cyan}%1~%f%F{magenta}]%f%(!.#.$) "
 
-# aliasでmdviewコマンドでMarkdownファイルを見れるように
-function mdview(){
-    markdown $1 | nocorrect lynx -stdin
+# ブランチ名を色付きで表示させるメソッド
+function rprompt-git-current-branch {
+  local branch_name st branch_status
+
+  if [ ! -e  ".git" ]; then
+    # gitで管理されていないディレクトリは何も返さない
+    return
+  fi
+  branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+  st=`git status 2> /dev/null`
+  if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
+    # 全てcommitされてクリーンな状態
+    branch_status="%F{green}"
+  elif [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
+    # gitに管理されていないファイルがある状態
+    branch_status="%F{red}?"
+  elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
+    # git addされていないファイルがある状態
+    branch_status="%F{red}+"
+  elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
+    # git commitされていないファイルがある状態
+    branch_status="%F{yellow}!"
+  elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
+    # コンフリクトが起こった状態
+    echo "%F{red}!(no branch)"
+    return
+  else
+    # 上記以外の状態の場合は青色で表示させる
+    branch_status="%F{blue}"
+  fi
+  # ブランチ名を色付きで表示する
+  echo "${branch_status}[$branch_name]"
 }
 
+# プロンプトの右側(RPS1)にメソッドの結果を表示させる
+RPS1='`rprompt-git-current-branch`'
+
+# プロンプトが表示されるたびにプロンプト文字列を評価、置換する
+setopt prompt_subst
+
+zstyle ':completion:*default' menu select=2
+
 # LS_COLORSを設定しておく
-export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
+export LS_COLORS='di=36:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
 
 # ファイル補完候補に色を付ける
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
-if [ -e /usr/local/share/zsh-completions ]; then
-    fpath=(/usr/local/share/zsh-completions $fpath)
+alias ls='gls -Fh --color'
+
+if ! zplug check --verbose; then
+    printf "Intall [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
 fi
-eval "$(rbenv init -)"
+
+zplug load --verbose
+
+export PATH=/usr/local/bin:$PATH
