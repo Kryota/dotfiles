@@ -39,7 +39,7 @@ zplug "zsh-users/zsh-history-substring-search"
 # zplug "mollifier/cd-gitroot"
 
 # 移動系強化プラグイン
-zplug "b4b4r07/enhancd", use:enhancd.sh
+zplug "b4b4r07/enhancd", use:init.sh
 
 # インタラクティブフィルタ
 # fzf-bin にホスティングされているので注意
@@ -57,7 +57,7 @@ zstyle ':completion:*:warnings' format '%F{RED}No matches for:''%F{YELLOW} %d'$D
 zstyle ':completion:*:descriptions' format '%F{YELLOW}completing %B%d%b'$DEFAULT
 zstyle ':completion:*:options' description 'yes'
 zstyle ':completion:*:descriptions' format '%F{yellow}Completing %B%d%b%f'$DEFAULT
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # 大文字小文字を区別しない
 
 # マッチ種別を別々に表示
 zstyle ':completion:*' group-name ''
@@ -131,4 +131,6 @@ fi
 
 zplug load --verbose
 
-export PATH=/usr/local/bin:$PATH
+export PATH=/usr/local/bin:$PATH # python3用のパス
+export PATH=$HOME/.rbenv/bin:$PATH # ruby用のパス
+eval "$(rbenv init - zsh)" # rbenvの初期化
