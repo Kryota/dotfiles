@@ -1,4 +1,5 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$PATH:/usr/sbin
 
 # zplugが無いときはgit cloneしてくる
 if [[ ! -d ~/.zplug ]];then
@@ -132,5 +133,9 @@ fi
 zplug load --verbose
 
 export PATH=/usr/local/bin:$PATH # python3用のパス
+# export PATH=/usr/local/bin/lib/python/site-packages:$PATH # pip3 install --userで入れたパッケージへのパス
+export PATH=/usr/local/bin/bin:$PATH
 export PATH=$HOME/.rbenv/bin:$PATH # ruby用のパス
 eval "$(rbenv init - zsh)" # rbenvの初期化
+
+export PYTHONUSERBASE=/usr/local/bin
