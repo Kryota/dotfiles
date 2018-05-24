@@ -1,5 +1,6 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$PATH:/usr/sbin
+export PATH=$PATH:/sbin
 
 # zplugが無いときはgit cloneしてくる
 if [[ ! -d ~/.zplug ]];then
@@ -18,6 +19,12 @@ setopt print_eight_bit
 # 自動補完を有効にする
 autoload -U compinit
 compinit
+
+# デフォルトエディタの設定
+export EDITOR='vim'
+
+# Emacs風のキーバインド(Ctrl-A, Ctrl-E, Ctrl-Pなど)
+bindkey -e
 
 # gitに関するエイリアス（gaなど）を追加する
 # oh-my-zshをサービスとしてそこからインストール
@@ -71,7 +78,8 @@ zstyle ':completion:*:manuals' separate-sections true
 autoload colors
 colors
 
-PS1="%F{magenta}[${USER}@${HOST%%.*}%f %F{cyan}%1~%f%F{magenta}]%f%(!.#.$) "
+# PS1="%F{magenta}[${USER}@${HOST%%.*}%f %F{cyan}%1~%f%F{magenta}]%f%(!.#.$) "
+PS1="%F{magenta}[${USER} %F{cyan}%1~%f%F{magenta}]%f%(!.#.$) "
 
 # ブランチ名を色付きで表示させるメソッド
 function rprompt-git-current-branch {
