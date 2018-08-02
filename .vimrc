@@ -222,25 +222,25 @@ imap <expr><TAB> pumvisible() ? "<C-n>" : neosnippet#jumpable() ? "<Plug>(neosni
 " CtrlPの設定
 "----------------------------------------------------------
 
-let g:ctrlp_match_window = 'order:ttb,min:20,max:20,results:100' " マッチウインドウの設定. 「下部に表示, 大きさ20行で固定, 検索結果100件」
-let g:ctrlp_show_hidden = 1 " .(ドット)から始まるファイルも検索対象にする
-let g:ctrlp_types = ['fil'] "ファイル検索のみ使用
-let g:ctrlp_extensions = ['funky', 'commandline'] " CtrlPの拡張として「funky」と「commandline」を使用
-
-" CtrlPCommandLineの有効化
-command! CtrlPCommandLine call ctrlp#init(ctrlp#commandline#id())
-
-" CtrlPFunkyの有効化
-let g:ctrlp_funky_matchtype = 'path'
+" let g:ctrlp_match_window = 'order:ttb,min:20,max:20,results:100' " マッチウインドウの設定. 「下部に表示, 大きさ20行で固定, 検索結果100件」
+" let g:ctrlp_show_hidden = 1 " .(ドット)から始まるファイルも検索対象にする
+" let g:ctrlp_types = ['fil'] "ファイル検索のみ使用
+" let g:ctrlp_extensions = ['funky', 'commandline'] " CtrlPの拡張として「funky」と「commandline」を使用
+"
+" " CtrlPCommandLineの有効化
+" command! CtrlPCommandLine call ctrlp#init(ctrlp#commandline#id())
+"
+" " CtrlPFunkyの有効化
+" let g:ctrlp_funky_matchtype = 'path'
 
 "----------------------------------------------------------
 " ag.vimの設定
 "----------------------------------------------------------
 
-if executable('ag') " agが使える環境の場合
-  let g:ctrlp_use_caching=0 " CtrlPのキャッシュを使わない
-  let g:ctrlp_user_command='ag %s -i --hidden -g ""' " 「ag」の検索設定
-endif
+" if executable('ag') " agが使える環境の場合
+"   let g:ctrlp_use_caching=0 " CtrlPのキャッシュを使わない
+"   let g:ctrlp_user_command='ag %s -i --hidden -g ""' " 「ag」の検索設定
+" endif
 
 "----------------------------------------------------------
 " vim-indent-guidesの設定
@@ -256,3 +256,14 @@ let g:indent_guides_start_level = 2
 "----------------------------------------------------------
 " tcommentの設定(今後やるかも)
 "----------------------------------------------------------
+
+"----------------------------------------------------------
+" fzfの設定
+" ---------------------------------------------------------
+
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --smart-case '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)

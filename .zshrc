@@ -138,6 +138,9 @@ if ! zplug check --verbose; then
     fi
 fi
 
+# Proxyの設定
+alias nswitch="source ~/.switch_proxy"
+
 zplug load --verbose
 
 export PATH=/usr/local/bin:$PATH # python3用のパス

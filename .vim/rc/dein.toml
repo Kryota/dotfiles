@@ -25,23 +25,35 @@ repo = 'Shougo/neosnippet'
 [[plugins]]
 repo = 'Shougo/neosnippet-snippets'
 
-[[plugins]]
-repo = 'ctrlpvim/ctrlp.vim'
-
-[[plugins]]
-repo = 'tacahiroy/ctrlp-funky'
-
-[[plugins]]
-repo = 'suy/vim-ctrlp-commandline'
-
-[[plugins]]
-repo = 'rking/ag.vim'
+# [[plugins]]
+# repo = 'ctrlpvim/ctrlp.vim'
+#
+# [[plugins]]
+# repo = 'tacahiroy/ctrlp-funky'
+#
+# [[plugins]]
+# repo = 'suy/vim-ctrlp-commandline'
+#
+# [[plugins]]
+# repo = 'rking/ag.vim'
 
 [[plugins]]
 repo = 'tomtom/tcomment_vim'
 
-[[plugins]]
-repo = 'Shougo/unite.vim'
+# [[plugins]]
+# repo = 'Shougo/unite.vim'
 
 [[plugins]]
 repo = 'JuliaEditorSupport/julia-vim'
+
+[[plugins]]
+repo = 'cespare/vim-toml'
+
+[[plugins]]
+repo = 'junegunn/fzf'
+build = './install --bin'
+marged = '0'
+
+[[plugins]]
+repo = 'junegunn/fzf.vim'
+depends = 'fzf'
