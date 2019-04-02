@@ -139,7 +139,7 @@ if ! zplug check --verbose; then
 fi
 
 # Proxyの設定
-alias nswitch="source ~/.switch_proxy"
+# alias nswitch="source ~/.switch_proxy"
 
 zplug load --verbose
 
