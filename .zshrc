@@ -13,8 +13,14 @@ source ~/.zplug/init.zsh
 # 文字コードの指定
 export LANG=ja_JP.UTF-8
 
+# コマンド履歴のメモリ保存数
+export HISTSIZE=1000
+
 # 日本語ファイル名を表示可能にする
 setopt print_eight_bit
+
+# *とか?とか[]をグロブ展開しないようにする
+setopt nonomatch
 
 # 自動補完を有効にする
 autoload -U compinit
@@ -150,3 +156,20 @@ export PATH=$HOME/.rbenv/bin:$PATH # ruby用のパス
 eval "$(rbenv init - zsh)" # rbenvの初期化
 
 export PYTHONUSERBASE=/usr/local/bin
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export PATH="$HOME/.goenv/bin:$PATH"
+eval "$(goenv init -)"
+export PATH="$GOROOT/bin:$PATH"
+export PATH="$GOPATH/bin:$PATH"
+export PATH="$HOME/Library/Python/2.7/bin:$PATH"
+export CC="/usr/bin/gcc"
+export XDG_CONFIG_HOME=~/.config
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+export JAVA_HOME=`/usr/libexec/java_home -v 1.8.0_212-zulu-8.38.0.13`
+export PATH="/usr/local/opt/mysql-client/bin:$PATH"
+export RUBY_CONFIGURE_OPTS="--with-openssl-dir=/usr/local/Cellar/openssl/1.0.2r/"

@@ -26,6 +26,8 @@ set shiftwidth=4 " smartindentで増減する幅
 
 filetype on
 
+autocmd BufNewFile,BufRead *.conf setfiletype conf
+
 " --------------------------------------------------------
 " ファイル形式によってインデント幅を変える
 " --------------------------------------------------------
@@ -36,6 +38,7 @@ augroup fileTypeIndent
     autocmd BufNewFile,BufRead *.erb setlocal tabstop=2 softtabstop=2 shiftwidth=2
     autocmd BufNewFile,BufRead *.yml setlocal tabstop=2 softtabstop=2 shiftwidth=2
     autocmd BufNewFile,BufRead *.scss setlocal tabstop=2 softtabstop=2 shiftwidth=2
+    autocmd BufNewFile,BufRead *.js setlocal tabstop=2 softtabstop=2 shiftwidth=2
 augroup END
 
 " --------------------------------------------------------
@@ -142,6 +145,13 @@ if &term =~ "xterm"
 endif
 
 " --------------------------------------------------------
+" JSONのダブルクォーテーション設定
+" --------------------------------------------------------
+
+set conceallevel=0
+let g:vim_json_syntax_conceal = 0
+
+" --------------------------------------------------------
 "  deinの設定
 " --------------------------------------------------------
 
@@ -167,6 +177,10 @@ if dein#load_state(s:dein_dir)
   let g:rc_dir    = expand('~/.vim/rc')
   let s:toml      = g:rc_dir . '/dein.toml'
   let s:lazy_toml = g:rc_dir . '/dein_lazy.toml'
+
+  " deinのpluginのupdate設定
+  let g:dein#install_github_api_token = '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'
+  call dein#check_update(v:true)
 
   " TOML を読み込み、キャッシュしておく
   call dein#load_toml(s:toml,      {'lazy': 0})
@@ -207,6 +221,11 @@ set ruler " ステータスラインの右側にカーソルの現在位置を�
 " cron使用時にtmpディレクトリでバックアップを行わない
 "----------------------------------------------------------
 set backupskip=/tmp/*,/private/tmp/*
+
+"----------------------------------------------------------
+" Beep音の削除
+"----------------------------------------------------------
+set belloff=all
 
 "----------------------------------------------------------
 " neocomplete・neosnippetの設定
@@ -268,6 +287,14 @@ let g:indent_guides_start_level = 2
 "----------------------------------------------------------
 " tcommentの設定(今後やるかも)
 "----------------------------------------------------------
+if !exists('g:tcomment_types')
+    let g:tcomment_types = {}
+endif
+let g:tcomment_types['conf'] = '# %s'
+"----------------------------------------------------------
+" vim-terraformの設定
+"----------------------------------------------------------
+let g:terraform_fmt_on_save=1 " 保存時に自動フォーマット
 
 "----------------------------------------------------------
 " fzfの設定
@@ -279,3 +306,8 @@ command! -bang -nargs=* Rg
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
+
+"----------------------------------------------------------
+" vim-jsonの設定
+"----------------------------------------------------------
+let g:vim_json_syntax_conceal = 0 " jsonのシンタックスを上書きして無効化
