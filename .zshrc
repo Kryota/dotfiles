@@ -1,6 +1,7 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$PATH:/usr/sbin
 export PATH=$PATH:/sbin
+export PATH=$HOME/.local/share/aquaproj-aqua/bin:$PATH
 
 # zplugが無いときはgit cloneしてくる
 if [[ ! -d ~/.zplug ]];then
@@ -9,18 +10,18 @@ fi
 
 source ~/.zplug/init.zsh
 
-
 # 文字コードの指定
 export LANG=ja_JP.UTF-8
-
 # コマンド履歴のメモリ保存数
 export HISTSIZE=1000
-
+# 履歴から重複削除
+setopt hist_ignore_dups
 # 日本語ファイル名を表示可能にする
 setopt print_eight_bit
-
 # *とか?とか[]をグロブ展開しないようにする
 setopt nonomatch
+# ビープ音をオフ
+setopt no_beep
 
 # 自動補完を有効にする
 autoload -U compinit
@@ -28,40 +29,38 @@ compinit
 
 # デフォルトエディタの設定
 export EDITOR='vim'
-
 # Emacs風のキーバインド(Ctrl-A, Ctrl-E, Ctrl-Pなど)
 bindkey -e
 
-# gitに関するエイリアス（gaなど）を追加する
-# oh-my-zshをサービスとしてそこからインストール
-# zplug "plugins/git", from:oh-my-zsh
-
-# zshのテーマ
-# zplug "yous/lime", as:theme
+# Claude Codeの設定
+export CLAUDE_CODE_USE_VERTEX=1
+export CLOUD_ML_REGION=us-east5
+export ANTHROPIC_VERTEX_PROJECT_ID="dmm-search-admin"
 
 # zsh のコマンドラインに色付けをするやつ
 # compinit 以降に読み込むようにロードの優先度を変更する（10~19にすれば良い）
 zplug "zsh-users/zsh-syntax-highlighting"
-
-# zsh のヒストリサーチを便利にするやつ
-zplug "zsh-users/zsh-history-substring-search"
-
-# Vim でいう Unite.vim にあたるような存在
-# zplug "mollifier/anyframe"
-
-# 簡単に git ルートへ cd するや
-# zplug "mollifier/cd-gitroot"
-
 # 移動系強化プラグイン
 zplug "b4b4r07/enhancd", use:init.sh
-
 # インタラクティブフィルタ
 # fzf-bin にホスティングされているので注意
 # またファイル名が fzf-bin となっているので file:fzf としてリネームする
 zplug "junegunn/fzf-bin", as:command, from:gh-r, rename-to:fzf
-
 # tmux 用の拡張
 zplug "junegunn/fzf", as:command, use:bin/fzf-tmux
+# catの便利ツール
+zplug "sharkdp/bat", as:command, from:gh-r, rename-to:bat
+alias cat='bat'
+
+# fzfでhistory search
+function select-history() {
+  BUFFER=$(history -n -r 1 | fzf --no-sort +m --query "$LBUFFER" --prompt="History > ")
+  CURSOR=$#BUFFER
+}
+zle -N select-history
+bindkey '^r' select-history
+# fzfのレイアウト
+export FZF_DEFAULT_OPTS='--height 60% --border'
 
 # 補完関数の表示を強化する
 zstyle ':completion:*' verbose yes
@@ -72,21 +71,53 @@ zstyle ':completion:*:descriptions' format '%F{YELLOW}completing %B%d%b'$DEFAULT
 zstyle ':completion:*:options' description 'yes'
 zstyle ':completion:*:descriptions' format '%F{yellow}Completing %B%d%b%f'$DEFAULT
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # 大文字小文字を区別しない
-
 # マッチ種別を別々に表示
 zstyle ':completion:*' group-name ''
-
 # セパレータを設定する
 zstyle ':completion:*' list-separator '-->'
 zstyle ':completion:*:manuals' separate-sections true
+
+zstyle ':completion:*default' menu select=2
+# ファイル補完候補に色を付ける
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 # 名前で色を付けるようにする
 autoload colors
 colors
 
-# PS1="%F{magenta}[${USER}@${HOST%%.*}%f %F{cyan}%1~%f%F{magenta}]%f%(!.#.$) "
-PS1="%F{magenta}[${USER} %F{cyan}%1~%f%F{magenta}]%f%(!.#.$) "
+# gitでmasterとmainをよしなに変換する
+git() {
+  # 引数がなければ通常のgitコマンドを実行
+  if [[ $# -eq 0 ]]; then
+    command git
+    return
+  fi
 
+  # 引数の中にmainかmasterが含まれているかチェック
+  local args=("$@")
+  local found_branch=false
+
+  local has_main=$(command git rev-parse --verify main >/dev/null 2>&1 && echo true || echo false)
+  local has_master=$(command git rev-parse --verify master >/dev/null 2>&1 && echo true || echo false)
+
+  for i in {1..$#args}; do
+    if [[ "${args[$i]}" == "main" && "$has_main" != "true" && "$has_master" == "true" ]]; then
+      args[$i]="master"
+      found_branch=true
+    elif [[ "${args[$i]}" == "master" && "$has_master" != "true" && "has_main" == "true" ]]; then
+      args[$i]="main"
+      found_branch=true
+    fi
+  done
+
+  command git "${args[@]}"
+}
+
+# デフォルトブランチに一発で戻るエイリアス
+alias gcd='git checkout $(git symbolic-ref refs/remotes/origin/HEAD | sed "s@^refs/remotes/origin/@@")'
+
+# プロンプトの設定
+PS1="%F{magenta}[${USER} %F{cyan}%1~%f%F{magenta}]%f%(!.#.$) "
 # ブランチ名を色付きで表示させるメソッド
 function rprompt-git-current-branch {
   local branch_name st branch_status
@@ -123,19 +154,15 @@ function rprompt-git-current-branch {
 
 # プロンプトの右側(RPS1)にメソッドの結果を表示させる
 RPS1='`rprompt-git-current-branch`'
-
 # プロンプトが表示されるたびにプロンプト文字列を評価、置換する
 setopt prompt_subst
 
-zstyle ':completion:*default' menu select=2
-
 # LS_COLORSを設定しておく
 export LS_COLORS='di=36:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
-
-# ファイル補完候補に色を付ける
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-
 alias ls='gls -Fh --color'
+
+# nvimコマンドの省略化
+alias nvim='~/nvim-macos/bin/nvim'
 
 if ! zplug check --verbose; then
     printf "Intall [y/N]: "
@@ -144,32 +171,24 @@ if ! zplug check --verbose; then
     fi
 fi
 
-# Proxyの設定
-# alias nswitch="source ~/.switch_proxy"
-
 zplug load --verbose
 
-export PATH=/usr/local/bin:$PATH # python3用のパス
-# export PATH=/usr/local/bin/lib/python/site-packages:$PATH # pip3 install --userで入れたパッケージへのパス
-export PATH=/usr/local/bin/bin:$PATH
-export PATH=$HOME/.rbenv/bin:$PATH # ruby用のパス
-eval "$(rbenv init - zsh)" # rbenvの初期化
-
-export PYTHONUSERBASE=/usr/local/bin
-
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-export PATH="$HOME/.goenv/bin:$PATH"
-eval "$(goenv init -)"
-export PATH="$GOROOT/bin:$PATH"
-export PATH="$GOPATH/bin:$PATH"
-export PATH="$HOME/Library/Python/2.7/bin:$PATH"
 export CC="/usr/bin/gcc"
 export XDG_CONFIG_HOME=~/.config
+
+eval "$(direnv hook zsh)"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-export JAVA_HOME=`/usr/libexec/java_home -v 1.8.0_212-zulu-8.38.0.13`
-export PATH="/usr/local/opt/mysql-client/bin:$PATH"
-export RUBY_CONFIGURE_OPTS="--with-openssl-dir=/usr/local/Cellar/openssl/1.0.2r/"
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/koyama-ryota/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/koyama-ryota/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/koyama-ryota/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/koyama-ryota/google-cloud-sdk/completion.zsh.inc'; fi
